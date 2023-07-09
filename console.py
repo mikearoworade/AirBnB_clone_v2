@@ -126,10 +126,8 @@ class HBNBCommand(cmd.Cmd):
             else:
                 new_instance = HBNBCommand.classes[my_list[0]](**kwargs)
                 storage.new(new_instance)
-            storage.save()
             print(new_instance.id)
-            print(kwargs)
-            storage.save()
+            new_instance.save()
 
         except SyntaxError:
             print("** class name missing **")
@@ -192,26 +190,28 @@ class HBNBCommand(cmd.Cmd):
         except KeyError:
             print("** no instance found **")
 
-    def do_all(self, args):
+    def do_all(self, line):
         """Usage: all <class> or all
         Display string representations of all instances of a given class.
         If no class is specified, display all instantiated objects.
         """
         print_list = []
 
-        if args:
-            args = args.split(' ')[0]  #remove possible trailing args
-            if args not in HBNBCommand.classes:
-                print("** class doesn't exist **")
-                return
-            for k, v in storage.all().items():
-                if k.split('.')[0] == args:
-                    print_list.append(str(v))
-        else:
-            for k, v in storage.all().items():
-                print_list.append(str(v))
+        if not line:
+            objdict = storage.all()
+            print([objdict[k].__str__() for k in objdict])
+            return
+        try:
+            args = line.split(" ")
+            if args[0] not in HBNBCommand.classes:
+                raise NameError()
 
-        print(print_list)
+            objdict = storage.all(eval(args[0]))
+            print([objdict[k].__str__() for k in objdict])
+            return
+
+        except NameError:
+            print("** class doesn't exist **")
 
     def do_update(self, args):
         """Usage: update <class> <id> <attribute_name> <attribute _value>
