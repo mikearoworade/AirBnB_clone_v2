@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 """Defines the BaseModel class."""
+from os import getenv
 import models
 from uuid import uuid4
 from datetime import datetime
@@ -8,7 +9,10 @@ from sqlalchemy import Column
 from sqlalchemy import DateTime
 from sqlalchemy import String
 
-Base = declarative_base()
+if getenv("HBNB_TYPE_STORAGE") == "db":
+    Base = declarative_base()
+else:
+    Base = object
 
 class BaseModel:
     """Represents the BaseModel of the AirBnB clone project
@@ -17,10 +21,10 @@ class BaseModel:
         created_at (sqlalchemy DateTime): The datetime at creation.
         updated_at (sqlalchemy DateTime): The datetime of last update.
     """
-
-    id = Column(String(60), primary_key=True, nullable=False)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow())
-    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow())
+    if getenv("HBNB_TYPE_STORAGE") == "db":
+        id = Column(String(60), primary_key=True, nullable=False)
+        created_at = Column(DateTime, nullable=False, default=datetime.utcnow())
+        updated_at = Column(DateTime, nullable=False, default=datetime.utcnow())
 
     def __init__(self, *args, **kwargs):
         """Initialize a new BaseModel.
