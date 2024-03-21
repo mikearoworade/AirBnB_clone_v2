@@ -1,11 +1,12 @@
 #!/usr/bin/python3
 """Defines the Amenity class."""
+import os
 from models.base_model import Base
 from models.base_model import BaseModel
 from sqlalchemy import Column
 from sqlalchemy import String
 from sqlalchemy.orm import relationship
-
+STORAGE_TYPE = os.environ.get('HBNB_TYPE_STORAGE')
 
 class Amenity(BaseModel, Base):
     """Represents an Amenity for a MySQL database.
@@ -17,7 +18,10 @@ class Amenity(BaseModel, Base):
         name (sqlalchemy String): The amenity name.
         place_amenities (sqlalchemy relationship): Place-Amenity relationship.
     """
-    __tablename__ = "amenities"
-    name = Column(String(128), nullable=False)
-    place_amenities = relationship("Place", secondary="place_amenity",
-                                   viewonly=False)
+    if STORAGE_TYPE == "db":
+        __tablename__ = "amenities"
+        name = Column(String(128), nullable=False)
+        places = relationship("Place", secondary="place_amenity", back_populates="amenities", cascade="delete")
+
+    else:
+        name = ""
